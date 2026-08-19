@@ -1,97 +1,75 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1.0">
-  <title>Portal Network — Account</title>
-  <meta name="description" content="Portal Network account dashboard">
-  <meta name="theme-color" content="#111111">
-  <link rel="preconnect" href="https://fonts.googleapis.com">
-  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=JetBrains+Mono:wght@400;500&display=swap" rel="stylesheet">
-  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
-  <style>
-    :root{--bg:#111111;--surface:#1a1a1a;--surface2:#151515;--border:#333;--text:#e0e0e0;--muted:#8b8b8b;--accent:#00ff9d;--danger:#ff4d4d;--radius:10px}
-    *{box-sizing:border-box}html{background:var(--bg)}body{margin:0;background:var(--bg);color:var(--text);font-family:Inter,ui-sans-serif,system-ui,sans-serif;min-height:100vh;-webkit-font-smoothing:antialiased}
-    ::selection{background:var(--accent);color:#000}.mono{font-family:"JetBrains Mono",monospace}
-    button,input{font:inherit}.shell{min-height:100vh;display:grid;grid-template-columns:230px 1fr}
-    aside{position:sticky;top:0;height:100vh;border-right:1px solid var(--border);padding:20px 14px;background:#111;display:flex;flex-direction:column}
-    .brand{display:flex;align-items:center;gap:10px;padding:7px 9px 24px}.mark{width:32px;height:32px;border:1px solid #444;border-radius:8px;display:grid;place-items:center;color:var(--accent);font-weight:600}.brand-name{font-size:13px;font-weight:600}.brand-sub{display:block;color:#777;font-size:10px;margin-top:2px}
-    .label{color:#666;font-size:9px;font-weight:600;letter-spacing:.12em;text-transform:uppercase;padding:8px 10px}.nav{display:grid;gap:3px}.nav button{border:1px solid transparent;background:transparent;color:#999;text-align:left;padding:9px 10px;border-radius:7px;font-size:12px;cursor:pointer}.nav button:hover{color:#ddd;background:#171717}.nav button.active{color:var(--text);background:#1b1b1b;border-color:#292929}.nav button span{display:inline-block;width:21px;color:#777}.nav button.active span{color:var(--accent)}
-    .account-mini{margin-top:auto;border-top:1px solid #252525;padding:14px 6px 2px}.mini-avatar{width:30px;height:30px;border:1px solid #3a3a3a;border-radius:50%;display:grid;place-items:center;color:var(--accent);font-size:11px}.mini-row{display:flex;align-items:center;gap:9px}.mini-name{font-size:11px;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}.mini-email{font-size:9px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:150px}
-    main{min-width:0;padding:28px 34px 50px}.top{max-width:1080px;margin:0 auto 30px;display:flex;align-items:end;justify-content:space-between;gap:20px}.kicker{font-size:10px;color:#666;text-transform:uppercase;letter-spacing:.12em}.top h1{margin:5px 0 0;font-size:27px;font-weight:500;letter-spacing:-.03em}.logout{border:1px solid #383838;background:#171717;color:#aaa;border-radius:7px;padding:8px 11px;font-size:11px;cursor:pointer}.logout:hover{color:#fff;border-color:#555}
-    .content{max-width:1080px;margin:auto}.page{display:none}.page.active{display:block}.hero{border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);padding:24px;margin-bottom:14px}.hero h2{font-size:20px;font-weight:500;margin:0 0 7px}.hero p{margin:0;color:#888;font-size:12px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{border:1px solid var(--border);background:var(--surface);border-radius:var(--radius);padding:18px}.card:hover{border-color:#444}.full{grid-column:1/-1}.card-title{font-size:12px;font-weight:500;margin:0 0 15px}.muted{color:#777;font-size:11px}.value{font-size:18px;font-weight:400;word-break:break-word}.row{display:flex;justify-content:space-between;gap:20px;padding:11px 0;border-bottom:1px solid #292929}.row:last-child{border-bottom:0}.row .key{color:#777;font-size:11px}.row .val{text-align:right;font-size:11px;max-width:65%;word-break:break-all}.accent{color:var(--accent)}
-    .status{display:inline-flex;align-items:center;gap:6px;font-size:10px;color:#8f8f8f}.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 7px rgba(0,255,157,.45)}.dot.off{background:#666;box-shadow:none}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #3a3a3a;background:#202020;color:#ddd;border-radius:7px;padding:9px 12px;font-size:11px;cursor:pointer}.btn:hover{border-color:#555;background:#242424}.btn.primary{border-color:var(--accent);background:var(--accent);color:#000}.btn.primary:hover{filter:brightness(.9)}
-    .notice{padding:11px 12px;border:1px solid #303030;border-radius:7px;background:#161616;color:#888;font-size:10px;line-height:1.5}.notice.success{border-color:#24513f}.notice.error{border-color:#552626;color:#d88}.danger{color:var(--danger)}
-    .loading{min-height:100vh;display:grid;place-items:center;background:var(--bg);color:#666;font-size:11px}.spinner{width:18px;height:18px;border:2px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:auto auto 10px}@keyframes spin{to{transform:rotate(360deg)}}
-    footer{max-width:1080px;margin:28px auto 0;color:#555;font-size:9px;text-align:center}.hidden{display:none!important}
-    @media(max-width:760px){.shell{grid-template-columns:1fr}aside{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--border);padding:12px}.brand{padding-bottom:12px}.nav{display:flex;overflow:auto}.label,.account-mini{display:none}main{padding:22px 14px 40px}.top{align-items:flex-start}.grid{grid-template-columns:1fr}.full{grid-column:auto}.top h1{font-size:23px}}
-  </style>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width,initial-scale=1.0">
+<title>Portal Network — Account</title>
+<link rel="icon" type="image/png" href="/favicon.png">
+<script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+<style>
+:root{--bg:#111;--panel:#1a1a1a;--panel2:#202020;--border:#333;--text:#e0e0e0;--muted:#777;--accent:#00ff9d;--danger:#ff5c5c}
+*{box-sizing:border-box}html,body{margin:0;min-height:100%;background:#111;color:var(--text);font-family:Inter,system-ui,-apple-system,"Segoe UI",sans-serif}body{background-image:radial-gradient(circle,#ffffff0d 2px,transparent 2px);background-size:40px 40px}::selection{background:#22c55e;color:#fff}button,input{font:inherit}.mono{font-family:monospace}
+.app{min-height:100vh;display:grid;grid-template-columns:230px 1fr}.sidebar{position:sticky;top:0;height:100vh;background:#121212;border-right:1px solid var(--border);padding:22px 14px;display:flex;flex-direction:column}.brand{display:flex;align-items:center;gap:10px;padding:5px 9px 28px}.logo{width:34px;height:34px;border:1px solid #444;border-radius:8px;display:grid;place-items:center;color:var(--accent);font-weight:700}.brand b{font-size:13px}.brand small{display:block;color:#666;font-size:9px;margin-top:2px}.label{padding:8px 10px;color:#666;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.nav{display:grid;gap:3px}.nav button{border:1px solid transparent;background:transparent;color:#888;border-radius:7px;padding:10px;text-align:left;font-size:12px;cursor:pointer}.nav button:hover{background:#181818;color:#ddd}.nav button.active{background:#1b1b1b;border-color:#292929;color:#eee}.nav button span{display:inline-block;width:23px;color:#666}.nav button.active span{color:var(--accent)}.user-mini{margin-top:auto;border-top:1px solid #282828;padding:14px 7px 3px;display:flex;gap:9px;align-items:center}.avatar{width:31px;height:31px;border-radius:50%;background:linear-gradient(135deg,#6a54ff,#ff7bc7);display:grid;place-items:center;color:#fff;font-size:12px;font-weight:700;flex:none}.mini-name{font-size:11px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px}.mini-email{font-size:9px;color:#666;white-space:nowrap;overflow:hidden;text-overflow:ellipsis;max-width:145px}
+main{min-width:0;padding:28px 34px 50px}.top{max-width:1040px;margin:0 auto 28px;display:flex;align-items:flex-end;justify-content:space-between;gap:20px}.kicker{color:#666;font-size:9px;font-weight:700;letter-spacing:.13em;text-transform:uppercase}.top h1{margin:5px 0 0;font-size:27px;font-weight:500;letter-spacing:-.03em}.signout{border:1px solid #3b3b3b;background:#181818;color:#aaa;border-radius:7px;padding:8px 12px;font-size:11px;cursor:pointer}.signout:hover{color:#fff;border-color:#555}.content{max-width:1040px;margin:auto}.page{display:none}.page.active{display:block}.hero{background:#1a1a1a;border:1px solid var(--border);border-radius:10px;padding:25px;margin-bottom:14px}.hero h2{margin:5px 0 7px;font-size:21px;font-weight:500}.hero p{margin:0;color:#888;font-size:12px;line-height:1.6}.grid{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:14px}.card{background:#1a1a1a;border:1px solid var(--border);border-radius:10px;padding:18px}.card:hover{border-color:#444}.full{grid-column:1/-1}.title{font-size:12px;font-weight:500;margin:0 0 15px}.value{font-size:18px}.muted{color:#777;font-size:11px}.row{display:flex;justify-content:space-between;gap:20px;padding:12px 0;border-bottom:1px solid #292929}.row:last-child{border-bottom:0}.key{color:#777;font-size:11px}.val{text-align:right;font-size:11px;max-width:70%;word-break:break-word}.status{display:inline-flex;align-items:center;gap:6px;color:#888;font-size:10px}.dot{width:6px;height:6px;border-radius:50%;background:var(--accent);box-shadow:0 0 8px #00ff9d88}.actions{display:flex;gap:8px;flex-wrap:wrap}.btn{border:1px solid #3b3b3b;background:#202020;color:#ddd;border-radius:7px;padding:9px 12px;font-size:11px;cursor:pointer}.btn:hover{background:#252525;border-color:#555}.btn.primary{background:var(--accent);border-color:var(--accent);color:#000;font-weight:600}.notice{margin-top:14px;border:1px solid #303030;background:#161616;border-radius:7px;padding:11px;color:#888;font-size:10px;line-height:1.6}.notice.success{border-color:#24513f;color:#9be7c4}.notice.error{border-color:#542929;color:#ffaaa0}.danger{color:var(--danger)}.loading{min-height:100vh;display:grid;place-items:center;color:#666;font-size:11px}.spinner{width:17px;height:17px;border:2px solid #333;border-top-color:var(--accent);border-radius:50%;animation:spin .7s linear infinite;margin:0 auto 9px}@keyframes spin{to{transform:rotate(360deg)}}.hidden{display:none!important}footer{text-align:center;color:#555;font-size:9px;margin-top:28px}
+@media(max-width:760px){.app{display:block}.sidebar{position:relative;height:auto;border-right:0;border-bottom:1px solid var(--border);padding:12px}.brand{padding:4px 7px 12px}.label,.user-mini{display:none}.nav{display:flex;overflow-x:auto}.nav button{white-space:nowrap}main{padding:22px 14px 40px}.top{align-items:flex-start}.grid{grid-template-columns:1fr}.full{grid-column:auto}.top h1{font-size:23px}}
+</style>
 </head>
 <body>
-  <div id="loading" class="loading"><div><div class="spinner"></div>Loading Portal Network account…</div></div>
-  <div id="app" class="shell hidden">
-    <aside>
-      <div class="brand"><div class="mark">P</div><div><div class="brand-name">Portal Network</div><span class="brand-sub">Account</span></div></div>
-      <div class="label">Account</div>
-      <nav class="nav">
-        <button class="active" data-page="overview"><span>⌂</span>Overview</button>
-        <button data-page="profile"><span>○</span>Profile</button>
-        <button data-page="security"><span>◇</span>Security</button>
-        <button data-page="settings"><span>⚙</span>Settings</button>
-      </nav>
-      <div class="account-mini"><div class="mini-row"><div id="miniAvatar" class="mini-avatar">?</div><div><div id="miniName" class="mini-name">Account</div><div id="miniEmail" class="mini-email"></div></div></div></div>
-    </aside>
-    <main>
-      <header class="top"><div><div class="kicker">Portal Network</div><h1 id="pageTitle">Account Overview</h1></div><button id="logout" class="logout">Sign out</button></header>
-      <div class="content">
-        <section id="overview" class="page active">
-          <div class="hero"><div class="kicker">Account</div><h2 id="welcome">Welcome back.</h2><p>Your Portal Network account is connected to the shared Supabase authentication backend.</p></div>
-          <div class="grid">
-            <div class="card"><h3 class="card-title">Account</h3><div id="accountEmail" class="value">—</div><div style="margin-top:8px" class="status"><i class="dot"></i>Authenticated</div></div>
-            <div class="card"><h3 class="card-title">Member since</h3><div id="createdAt" class="value">—</div><div style="margin-top:8px" class="muted">Portal Network account</div></div>
-            <div class="card full"><h3 class="card-title">Account details</h3><div class="row"><span class="key">Email</span><span id="detailEmail" class="val">—</span></div><div class="row"><span class="key">User ID</span><span id="detailId" class="val mono">—</span></div><div class="row"><span class="key">Last sign in</span><span id="lastSignIn" class="val">—</span></div><div class="row"><span class="key">Email verified</span><span id="verified" class="val">—</span></div></div>
-            <div class="card full"><h3 class="card-title">Quick actions</h3><div class="actions"><button class="btn" data-go="profile">Edit profile</button><button class="btn" data-go="security">Security</button><button class="btn" data-go="settings">Settings</button></div></div>
-          </div>
-        </section>
-        <section id="profile" class="page">
-          <div class="hero"><div class="kicker">Account</div><h2>Profile</h2><p>Your profile information is stored with your Portal Network account.</p></div>
-          <div class="grid"><div class="card full"><h3 class="card-title">Profile information</h3><div class="row"><span class="key">Email</span><span id="profileEmail" class="val">—</span></div><div class="row"><span class="key">Display name</span><span id="displayName" class="val">—</span></div><div class="row"><span class="key">User ID</span><span id="profileId" class="val mono">—</span></div><div id="profileNotice" class="notice" style="margin-top:14px">Profile fields are currently read from Supabase Auth. Additional profile fields can be connected to your database without changing authentication.</div></div></div>
-        </section>
-        <section id="security" class="page">
-          <div class="hero"><div class="kicker">Account</div><h2>Security</h2><p>Manage the security of your Portal Network session.</p></div>
-          <div class="grid"><div class="card full"><h3 class="card-title">Authentication</h3><div class="row"><span class="key">Session</span><span class="val"><span class="status"><i class="dot"></i>Active</span></span></div><div class="row"><span class="key">Email verification</span><span id="securityVerified" class="val">—</span></div><div class="row"><span class="key">Authentication provider</span><span id="provider" class="val">Email</span></div><div class="actions" style="margin-top:15px"><button id="securityLogout" class="btn">Sign out of this session</button></div></div></div>
-        </section>
-        <section id="settings" class="page">
-          <div class="hero"><div class="kicker">Account</div><h2>Settings</h2><p>Portal Network account preferences.</p></div>
-          <div class="grid"><div class="card full"><h3 class="card-title">Appearance</h3><div class="row"><span class="key">Theme</span><span class="val">Gravity Lab style · Dark</span></div><div class="row"><span class="key">Accent</span><span class="val accent mono">#00ff9d</span></div></div><div class="card full"><h3 class="card-title">Session</h3><p class="muted">This dashboard uses the same Supabase project connection as Gravity Lab's Supabase integration. The browser only uses the public Supabase anon key; privileged service-role credentials are never placed here.</p></div></div>
-        </section>
-      </div>
-      <footer>Portal Network · Account Dashboard</footer>
-    </main>
+<div id="loading" class="loading"><div><div class="spinner"></div>Loading Portal Network account…</div></div>
+<div id="app" class="app hidden">
+<aside class="sidebar">
+  <div class="brand"><div class="logo">P</div><div><b>Portal Network</b><small>Account Dashboard</small></div></div>
+  <div class="label">Account</div>
+  <nav class="nav">
+    <button class="active" data-page="overview"><span>⌂</span>Overview</button>
+    <button data-page="profile"><span>○</span>Profile</button>
+    <button data-page="security"><span>◇</span>Security</button>
+    <button data-page="settings"><span>⚙</span>Settings</button>
+  </nav>
+  <div class="user-mini"><div id="miniAvatar" class="avatar">?</div><div><div id="miniName" class="mini-name">Account</div><div id="miniEmail" class="mini-email"></div></div></div>
+</aside>
+<main>
+<header class="top"><div><div class="kicker">Portal Network</div><h1 id="pageTitle">Account Overview</h1></div><button id="signout" class="signout">Log out</button></header>
+<div class="content">
+<section id="overview" class="page active">
+  <div class="hero"><div class="kicker">Account</div><h2 id="welcome">Welcome back.</h2><p>This is your Portal Network account dashboard.</p></div>
+  <div class="grid">
+    <div class="card"><h3 class="title">Signed in as</h3><div id="accountName" class="value">—</div><div id="accountEmail" class="muted" style="margin-top:6px">—</div><div class="status" style="margin-top:12px"><i class="dot"></i>Session active</div></div>
+    <div class="card"><h3 class="title">Member since</h3><div id="createdAt" class="value">—</div><div class="muted" style="margin-top:6px">Portal Network account</div></div>
+    <div class="card full"><h3 class="title">Account information</h3><div class="row"><span class="key">Name</span><span id="detailName" class="val">—</span></div><div class="row"><span class="key">Email</span><span id="detailEmail" class="val">—</span></div><div class="row"><span class="key">User ID</span><span id="detailId" class="val mono">—</span></div><div class="row"><span class="key">Email confirmed</span><span id="verified" class="val">—</span></div><div class="row"><span class="key">Last sign in</span><span id="lastSignIn" class="val">—</span></div></div>
+    <div class="card full"><h3 class="title">Quick actions</h3><div class="actions"><button class="btn" data-go="profile">Profile</button><button class="btn" data-go="security">Security</button><button class="btn" data-go="settings">Settings</button><button class="btn primary" id="overviewLogout">Log out</button></div></div>
   </div>
-  <script>
-    // Same Supabase project used by Gravity Lab's src/lib/supabaseClient.js.
-    // Vite deployments may provide these as VITE_SUPABASE_URL / VITE_SUPABASE_ANON_KEY.
-    const SUPABASE_URL = window.VITE_SUPABASE_URL || 'https://actfkbpcqopilqrfktwi.supabase.co';
-    const SUPABASE_ANON_KEY = window.VITE_SUPABASE_ANON_KEY || 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdGZrYnBjcW9waXlxcmZrdHdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTU3NjgsImV4cCI6MjA5NTY3MTc2OH0.AsEvtAIk5K-DpavDUUGfZrPYb4igRumktYIBd5TIXMg';
-    const supabase = window.supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
-    const pages = {overview:'Account Overview',profile:'Profile',security:'Security',settings:'Settings'};
-    let currentUser = null;
-    function $(id){return document.getElementById(id)}
-    function formatDate(value){if(!value)return '—';const d=new Date(value);return Number.isNaN(d.getTime())?'—':d.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}
-    function initials(user){const name=user?.user_metadata?.display_name||user?.user_metadata?.username||user?.email||'?';return name.trim().slice(0,1).toUpperCase()}
-    function displayName(user){return user?.user_metadata?.display_name||user?.user_metadata?.username||user?.email?.split('@')[0]||'Portal User'}
-    function showPage(page){document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('pageTitle').textContent=pages[page]||pages.overview;history.replaceState(null,'','#'+page)}
-    function render(user){
-      currentUser=user;const name=displayName(user), email=user.email||'—', verified=!!user.email_confirmed_at;
-      $('welcome').textContent='Welcome back, '+name+'.';$('accountEmail').textContent=email;$('createdAt').textContent=formatDate(user.created_at);$('detailEmail').textContent=email;$('detailId').textContent=user.id;$('lastSignIn').textContent=formatDate(user.last_sign_in_at);$('verified').textContent=verified?'Verified':'Not verified';$('profileEmail').textContent=email;$('displayName').textContent=name;$('profileId').textContent=user.id;$('securityVerified').textContent=verified?'Verified':'Not verified';$('provider').textContent=(user.app_metadata?.provider||'email').toString();$('miniAvatar').textContent=initials(user);$('miniName').textContent=name;$('miniEmail').textContent=email;
-    }
-    async function boot(){
-      try{const {data:{session},error}=await supabase.auth.getSession();if(error)throw error;if(!session){window.location.href='/';return}render(session.user);$('loading').classList.add('hidden');$('app').classList.remove('hidden');const hash=location.hash.slice(1);if(pages[hash])showPage(hash);supabase.auth.onAuthStateChange((event,newSession)=>{if(event==='SIGNED_OUT'||!newSession){window.location.href='/'}else if(newSession.user)render(newSession.user)})}catch(err){console.error(err);$('loading').innerHTML='<div class="notice error">Unable to connect to the Portal Network account service.</div>'}
-    }
-    document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));
-    async function signOut(){const {error}=await supabase.auth.signOut();if(error)alert(error.message);else window.location.href='/'}$('logout').addEventListener('click',signOut);$('securityLogout').addEventListener('click',signOut);boot();
-  </script>
+</section>
+<section id="profile" class="page">
+  <div class="hero"><div class="kicker">Account</div><h2>Profile</h2><p>Your account name is the same <span class="mono">name</span> metadata field created by the Portal Network signup page.</p></div>
+  <div class="grid"><div class="card full"><h3 class="title">Profile</h3><div class="row"><span class="key">Name</span><span id="profileName" class="val">—</span></div><div class="row"><span class="key">Email</span><span id="profileEmail" class="val">—</span></div><div class="row"><span class="key">User ID</span><span id="profileId" class="val mono">—</span></div><div class="notice">The signup system stores the name using Supabase Auth metadata as <span class="mono">data: { name: name }</span>. This dashboard reads that exact field.</div></div></div>
+</section>
+<section id="security" class="page">
+  <div class="hero"><div class="kicker">Account</div><h2>Security</h2><p>Authentication information for your current Portal Network session.</p></div>
+  <div class="grid"><div class="card full"><h3 class="title">Authentication</h3><div class="row"><span class="key">Session</span><span class="val"><span class="status"><i class="dot"></i>Active</span></span></div><div class="row"><span class="key">Provider</span><span id="provider" class="val">—</span></div><div class="row"><span class="key">Email confirmed</span><span id="securityVerified" class="val">—</span></div><div class="row"><span class="key">Last sign in</span><span id="securityLastSignIn" class="val">—</span></div><div class="actions" style="margin-top:15px"><button class="btn" id="securityLogout">Log out</button></div></div></div>
+</section>
+<section id="settings" class="page">
+  <div class="hero"><div class="kicker">Account</div><h2>Settings</h2><p>Portal Network dashboard preferences.</p></div>
+  <div class="grid"><div class="card full"><h3 class="title">Appearance</h3><div class="row"><span class="key">Theme</span><span class="val">Gravity Lab / Portal Network dark</span></div><div class="row"><span class="key">Accent</span><span class="val" style="color:var(--accent)">#00ff9d</span></div></div><div class="card full"><h3 class="title">Account system</h3><p class="muted">Authentication is handled by the same Supabase project and Auth flow used by the Portal Network signup page.</p></div></div>
+</section>
+</div><footer>Portal Network · Account Dashboard</footer>
+</main></div>
+<script>
+/* This uses the exact Supabase project and public anon key used by Portal Network's signup.html. */
+const SUPABASE_URL='https://actfkbpcqopilqrfktwi.supabase.co';
+const SUPABASE_ANON_KEY='eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6ImFjdGZrYnBjcW9waXFxcmZrdHdpIiwicm9sZSI6ImFub24iLCJpYXQiOjE3ODAwOTU3NjgsImV4cCI6MjA5NTY3MTc2OH0.AsEvtAIk5K-DpavDUUGfZrPYb4igRumktYIBd5TIXMg';
+const sb=window.supabase.createClient(SUPABASE_URL,SUPABASE_ANON_KEY);
+const pages={overview:'Account Overview',profile:'Profile',security:'Security',settings:'Settings'};
+let user=null;
+const $=id=>document.getElementById(id);
+function nameOf(u){return (u&&u.user_metadata&&u.user_metadata.name)||u?.email?.split('@')[0]||'Portal User'}
+function fmt(v){if(!v)return '—';const d=new Date(v);return Number.isNaN(d.getTime())?'—':d.toLocaleString(undefined,{dateStyle:'medium',timeStyle:'short'})}
+function initial(n){return (n||'?').trim().charAt(0).toUpperCase()}
+function showPage(page){if(!pages[page])page='overview';document.querySelectorAll('.page').forEach(p=>p.classList.toggle('active',p.id===page));document.querySelectorAll('.nav button').forEach(b=>b.classList.toggle('active',b.dataset.page===page));$('pageTitle').textContent=pages[page];history.replaceState(null,'','#'+page)}
+function render(u){user=u;const name=nameOf(u),email=u.email||'—',verified=!!u.email_confirmed_at;const provider=(u.app_metadata&&u.app_metadata.provider)||'email';$('welcome').textContent='Welcome back, '+name+'.';$('accountName').textContent=name;$('accountEmail').textContent=email;$('createdAt').textContent=fmt(u.created_at);$('detailName').textContent=name;$('detailEmail').textContent=email;$('detailId').textContent=u.id;$('verified').textContent=verified?'Yes':'No';$('lastSignIn').textContent=fmt(u.last_sign_in_at);$('profileName').textContent=name;$('profileEmail').textContent=email;$('profileId').textContent=u.id;$('provider').textContent=provider;$('securityVerified').textContent=verified?'Yes':'No';$('securityLastSignIn').textContent=fmt(u.last_sign_in_at);$('miniAvatar').textContent=initial(name);$('miniName').textContent=name;$('miniEmail').textContent=email)}
+async function logout(){const {error}=await sb.auth.signOut();if(error){alert(error.message);return}window.location.href='https://www.portal-network.com/signup'}
+async function boot(){try{const {data,error}=await sb.auth.getSession();if(error)throw error;if(!data.session){window.location.href='https://www.portal-network.com/signup';return}render(data.session.user);$('loading').classList.add('hidden');$('app').classList.remove('hidden');const hash=location.hash.slice(1);if(pages[hash])showPage(hash);sb.auth.onAuthStateChange((event,session)=>{if(event==='SIGNED_OUT'||!session){window.location.href='https://www.portal-network.com/signup';return}if(session.user)render(session.user)})}catch(e){console.error(e);$('loading').innerHTML='<div class="notice error">Unable to connect to the Portal Network account service.</div>'}}
+document.querySelectorAll('.nav button').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.page)));document.querySelectorAll('[data-go]').forEach(b=>b.addEventListener('click',()=>showPage(b.dataset.go)));$('signout').addEventListener('click',logout);$('overviewLogout').addEventListener('click',logout);$('securityLogout').addEventListener('click',logout);boot();
+</script>
 </body>
 </html>
